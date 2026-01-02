@@ -1,5 +1,6 @@
-const express = require('express');
-const cors = require('cors');
+import express from 'express';
+import cors from 'cors';
+import productRoutes from './routes/productRoutes.js';
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -11,3 +12,5 @@ app.use(express.json());
 app.listen(PORT, () => {
   console.log(`Server attivo su http://localhost:${PORT}`);
 });
+
+app.use('/api', productRoutes);
