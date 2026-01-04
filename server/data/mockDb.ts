@@ -1,3 +1,15 @@
+//interfaccia per prodotti
+export interface Product {
+    id: number;
+    name: string;
+    description: string;
+    price: number;
+    category: string;
+    inStock: boolean;
+    howManyAvailable: number;
+}
+
+
 let users = [
     {
  id: 1 , 
@@ -8,7 +20,7 @@ let users = [
     }
 ];
 
-let products = [
+let products: Product[] = [
     {
         id: 1,
         name: 'Pompa immersione',
