@@ -2,10 +2,16 @@ import {products, type Product} from '../data/mockDb.js';
 import type { Request, Response } from 'express';
 
 export const getAllProducts = (req: Request, res: Response) => {
+
     res.json(products);
 };
 
 export const addProduct = (req: Request, res: Response) => {
+    const user = (req as any).user;
+    if (user.role !== 'admin') {
+        return res.status(403).json({ message: 'Accesso negato, permessi insufficienti' });
+    }
+
     const { name, description, price, category, inStock, howManyAvailable } = req.body;
 
     const newProduct: Product = {
@@ -23,6 +29,10 @@ export const addProduct = (req: Request, res: Response) => {
 };
 
 export const getProductById = (req: Request, res: Response) => {
+     const user = (req as any).user;
+    if (user.role !== 'admin') {
+        return res.status(403).json({ message: 'Accesso negato, permessi insufficienti' });
+    }
     const id = req.params.id;
     
     if (!id) {
@@ -41,6 +51,10 @@ export const getProductById = (req: Request, res: Response) => {
 };
 
 export const deleteProduct = (req: Request, res: Response) => {
+     const user = (req as any).user;
+    if (user.role !== 'admin') {
+        return res.status(403).json({ message: 'Accesso negato, permessi insufficienti' });
+    }
     const id = req.params.id;
     if (!id) {
         res.status(400).json({ message: 'ID mancante' });
@@ -56,6 +70,7 @@ export const deleteProduct = (req: Request, res: Response) => {
     }
 
     const deletedProduct = products[productIndex];
+    
     if (!deletedProduct) {
         res.status(404).json({ message: 'Prodotto non trovato' });
         return;
@@ -66,6 +81,10 @@ export const deleteProduct = (req: Request, res: Response) => {
 };
 
 export const updateProduct = (req: Request, res: Response) => {
+        const user = (req as any).user;
+    if (user.role !== 'admin') {
+        return res.status(403).json({ message: 'Accesso negato, permessi insufficienti' });
+    }
     const id = req.params.id;
     if (!id) {
         res.status(400).json({ message: 'ID mancante' });

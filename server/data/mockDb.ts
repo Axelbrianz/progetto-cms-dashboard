@@ -18,6 +18,14 @@ let users = [
     role: 'admin',
     name: 'Admin User'
     }
+    ,
+    {
+ id: 2 , 
+ email: 'user@example.com',
+    password: 'userpass',
+    role: 'user',
+    name: 'Regular User'
+    }
 ];
 
 let products: Product[] = [
