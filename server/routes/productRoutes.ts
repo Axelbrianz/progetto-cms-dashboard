@@ -8,7 +8,7 @@ import { authenticateToken } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
-router.get('/products', authenticateToken, getAllProducts);
+router.get('/products', getAllProducts);
 router.post('/products', authenticateToken, addProduct);
 router.get('/products/:id', authenticateToken, getProductById);
 router.delete('/products/:id', authenticateToken, deleteProduct);
