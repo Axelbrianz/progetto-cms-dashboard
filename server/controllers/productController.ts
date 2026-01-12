@@ -3,6 +3,7 @@ import type { Request, Response, NextFunction } from 'express';
 import { Query } from 'mongoose';
 import { AppError } from '../utils/AppError.js';
 import { catchAsync } from '../utils/catchAsync.js';
+import fs from 'fs';
 
 export const getAllProducts = catchAsync(async(req: Request, res: Response) => {
     const queryObject = { ...req.query };
@@ -49,9 +50,13 @@ export const addProduct = catchAsync(async(req: Request, res: Response, next: Ne
     if (user.role !== 'admin') {
         return next(new AppError('Accesso negato, permessi insufficienti', 403));
     }
+
+    if (req.file) {
+        req.body.image = req.file.filename;
+    }
     
-    const createdProduct = await ProductModel.create(req.body);
-    res.status(201).json(createdProduct);
+    const newProduct = await ProductModel.create(req.body);
+    res.status(201).json(newProduct);
 });
 
 export const getProductById = catchAsync(async(req: Request, res: Response, next: NextFunction) => {
@@ -87,7 +92,19 @@ export const deleteProduct = catchAsync(async(req: Request, res: Response, next:
         return next(new AppError('Prodotto non trovato', 404));
     }
     
+    if (deletedProduct.image) {
+        const imagePath = `public/img/products/${deletedProduct.image}`;
+        fs.unlink(imagePath, (err) => {
+            if (err) {
+                console.error('Errore durante la cancellazione dell\'immagine del prodotto:', err);
+            } else {
+                console.log('Immagine del prodotto cancellata con successo:', imagePath);
+            }
+        }); 
+    }
+    
     res.status(200).json({ message: `${deletedProduct.name} eliminato` });
+    
 });
 
 export const updateProduct = catchAsync(async(req: Request, res: Response, next: NextFunction) => {
@@ -99,6 +116,22 @@ export const updateProduct = catchAsync(async(req: Request, res: Response, next:
     const { id } = req.params;
     if (!id) {
         return next(new AppError('ID mancante', 400));
+    }
+
+    if (req.file) {
+        const oldProduct = await ProductModel.findById(id);
+        if (oldProduct && oldProduct.image) {
+            const oldImagePath = `public/img/products/${oldProduct.image}`;
+            fs.unlink(oldImagePath, (err) => {
+                if (err) {
+                    console.error('Errore durante la cancellazione della vecchia immagine del prodotto:', err);
+                } else {
+                    console.log('Vecchia immagine del prodotto cancellata con successo:', oldImagePath);
+                }
+            });
+        }
+        req.body.image = req.file.filename;
+            
     }
     
     const updatedProduct = await ProductModel.findByIdAndUpdate(
@@ -113,3 +146,4 @@ export const updateProduct = catchAsync(async(req: Request, res: Response, next:
     
     res.json(updatedProduct);
 });
+

@@ -29,7 +29,11 @@ const productsSchema = new mongoose.Schema({
         type: Number,
         required: [true, 'Il numero di prodotti disponibili è obbligatorio'],
         min: 0
-    }
+    },
+    image: {
+    type: String,
+    default: 'default-product.jpg'
+}
 }, {
     timestamps: true
 });
