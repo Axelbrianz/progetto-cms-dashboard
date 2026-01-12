@@ -25,7 +25,7 @@ const productsSchema = new mongoose.Schema({
         type: Boolean,
         default: true
     },
-    howManyAvailable: {
+    howManyAvaible: {
         type: Number,
         required: [true, 'Il numero di prodotti disponibili è obbligatorio'],
         min: 0

@@ -9,6 +9,7 @@ import { errorHandler } from './middleware/errMiddleware.js';
 import mongoose from 'mongoose';
 
 const app = express();
+app.set('query parser', 'extended');
 const PORT = process.env.PORT
 const DB = process.env.URL_CONNECTION;
 if (!DB) {
