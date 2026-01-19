@@ -28,6 +28,7 @@ app.use(cors());
 app.use(express.json());
 app.use('/api', productRoutes);
 app.use('/api',authRoutes);
+
 app.use((req: Request, res: Response, next: NextFunction) => {
   next(new AppError(`La risorsa ${req.originalUrl} non è stata trovata sul server`, 404));
 });
