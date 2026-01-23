@@ -2,38 +2,61 @@ import mongoose from "mongoose";
 import type { Document } from "mongoose";
 import validator from "validator"; // Utile per validare le email
 import bcrypt from "bcryptjs";
+import { Query } from "mongoose";
 
 interface IUser extends Document {
   name: string;
   email: string;
   role: string;
   password: string;
+  reviews: mongoose.Types.ObjectId[];
+  correctPassword(
+    candidatePassword: string,
+    userPassword: string
+  ): Promise<boolean>;
 }
 
-const userSchema = new mongoose.Schema({
-  name: {
-    type: String,
-    required: [true, "Per favore, inserisci il tuo nome"],
+const userSchema = new mongoose.Schema(
+  {
+    name: {
+      type: String,
+      required: [true, "Per favore, inserisci il tuo nome"],
+    },
+    email: {
+      type: String,
+      required: [true, "Per favore, inserisci la tua email"],
+      unique: true,
+      lowercase: true,
+      validate: [validator.isEmail, "Inserisci una email valida"],
+    },
+    role: {
+      type: String,
+      enum: ["user", "admin"],
+      default: "user",
+    },
+    password: {
+      type: String,
+      required: [true, "Inserisci una password"],
+      minlength: 8,
+      select: false,
+    },
+    reviews: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Review",
+      },
+    ],
+    active: {
+      type: Boolean,
+      default: true,
+      select: false,
+    },
   },
-  email: {
-    type: String,
-    required: [true, "Per favore, inserisci la tua email"],
-    unique: true,
-    lowercase: true,
-    validate: [validator.isEmail, "Inserisci una email valida"],
-  },
-  role: {
-    type: String,
-    enum: ["user", "admin"],
-    default: "user",
-  },
-  password: {
-    type: String,
-    required: [true, "Inserisci una password"],
-    minlength: 8,
-    select: false,
-  },
-});
+  {
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true },
+  }
+);
 
 userSchema.set("toJSON", {
   transform: (doc, ret: any) => {
@@ -44,6 +67,17 @@ userSchema.set("toJSON", {
     return ret;
   },
 });
+
+userSchema.pre(/^find/, function (this: Query<any, any>) {
+  this.find({ active: { $ne: false } });
+});
+
+userSchema.methods.correctPassword = async function (
+  candidatePassword: string,
+  userPassword: string
+): Promise<boolean> {
+  return await bcrypt.compare(candidatePassword, userPassword);
+};
 
 userSchema.pre<IUser>("save", async function (this: IUser) {
   if (!this.isModified("password")) return;

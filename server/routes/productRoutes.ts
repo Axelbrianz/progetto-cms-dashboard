@@ -11,29 +11,24 @@ import { resizeProductImage } from "../middleware/uploadMiddleware.js";
 import reviewRoutes from "./reviewRoutes.js";
 const router = express.Router();
 
-router.get("/products", getAllProducts);
+router.get("/", getAllProducts);
 router.post(
-  "/products",
+  "/",
   authenticateToken,
   restrictTo("admin"),
   upload.single("image"),
   resizeProductImage,
-  addProduct
+  addProduct,
 );
-router.get("/products/:id", authenticateToken, getProductById);
-router.delete(
-  "/products/:id",
-  authenticateToken,
-  restrictTo("admin"),
-  deleteProduct
-);
-router.put(
-  "/products/:id",
+router.get("/:id", authenticateToken, getProductById);
+router.delete("/:id", authenticateToken, restrictTo("admin"), deleteProduct);
+router.patch(
+  "/:id",
   authenticateToken,
   restrictTo("admin"),
   upload.single("image"),
   resizeProductImage,
-  updateProduct
+  updateProduct,
 );
 router.use("/products/:productId/reviews", reviewRoutes);
 export default router;

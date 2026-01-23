@@ -31,7 +31,7 @@ const reviewSchema = new mongoose.Schema(
   {
     toJSON: { virtuals: true },
     toObject: { virtuals: true },
-  }
+  },
 );
 
 // Impedire recensioni duplicate da parte dello stesso utente per lo stesso prodotto
@@ -55,7 +55,7 @@ reviewSchema.pre(/^find/, function (this: Query<any, any>) {
 //Calcolo media delle recensioni
 
 reviewSchema.statics.calcAverageRatings = async function (
-  productId: mongoose.Types.ObjectId
+  productId: mongoose.Types.ObjectId,
 ) {
   const stats = await this.aggregate([
     {
@@ -87,14 +87,12 @@ reviewSchema.post("save", function (this: any) {
 });
 
 reviewSchema.post("findOneAndDelete", async function (doc) {
-  // 'doc' è il documento che è stato appena cancellato dal database.
-  // Mongoose ce lo "presta" un'ultima volta prima di farlo sparire.
   if (doc) {
     // Usiamo l'ID prodotto della recensione appena cancellata per ricalcolare la media
     await (doc.constructor as any).calcAverageRatings(doc.product);
   }
 });
 
-const Review = mongoose.model("Review", reviewSchema);
+const ReviewModel = mongoose.model("Review", reviewSchema);
 
-export { Review };
+export default ReviewModel;
