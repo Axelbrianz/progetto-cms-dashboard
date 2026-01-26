@@ -1,5 +1,6 @@
 import type { Request, Response, NextFunction } from "express";
 import CartModel from "../models/cartModel.js";
+import ProductModel from "../models/productsModel.js";
 import { catchAsync } from "../utils/catchAsync.js";
 import { AppError } from "../utils/AppError.js";
 
@@ -24,6 +25,13 @@ export const addToCart = catchAsync(
     const { productId, quantity = 1 } = req.body;
     // lo userId viene preso dal token
     const userId = (req as any).user.id;
+
+    // Verifica che il prodotto esista
+    const product = await ProductModel.findById(productId);
+
+    if (!product) {
+      return next(new AppError("Prodotto non trovato", 404));
+    }
 
     let cart = await CartModel.findOne({ user: userId });
 

@@ -12,7 +12,7 @@ interface IUser extends Document {
   reviews: mongoose.Types.ObjectId[];
   correctPassword(
     candidatePassword: string,
-    userPassword: string
+    userPassword: string,
   ): Promise<boolean>;
 }
 
@@ -40,12 +40,6 @@ const userSchema = new mongoose.Schema(
       minlength: 8,
       select: false,
     },
-    reviews: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Review",
-      },
-    ],
     active: {
       type: Boolean,
       default: true,
@@ -55,7 +49,7 @@ const userSchema = new mongoose.Schema(
   {
     toJSON: { virtuals: true },
     toObject: { virtuals: true },
-  }
+  },
 );
 
 userSchema.set("toJSON", {
@@ -68,13 +62,19 @@ userSchema.set("toJSON", {
   },
 });
 
+userSchema.virtual("reviews", {
+  ref: "Review",
+  localField: "_id",
+  foreignField: "user",
+});
+
 userSchema.pre(/^find/, function (this: Query<any, any>) {
   this.find({ active: { $ne: false } });
 });
 
 userSchema.methods.correctPassword = async function (
   candidatePassword: string,
-  userPassword: string
+  userPassword: string,
 ): Promise<boolean> {
   return await bcrypt.compare(candidatePassword, userPassword);
 };

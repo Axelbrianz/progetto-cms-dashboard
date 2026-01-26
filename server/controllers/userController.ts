@@ -19,7 +19,13 @@ export const getMe = (req: Request, res: Response, next: NextFunction) => {
 
 export const getUser = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
-    const user = await UserModel.findById(req.params.id).populate("reviews");
+    const user = await UserModel.findById(req.params.id).populate({
+      path: "reviews",
+      options: {
+        sort: { createdAt: -1 },
+        limit: 5,
+      },
+    });
 
     if (!user) {
       return next(new AppError("Utente non trovato", 404));

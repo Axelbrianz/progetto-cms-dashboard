@@ -48,7 +48,7 @@ reviewSchema.index({ product: 1, user: 1 }, { unique: true });
 reviewSchema.pre(/^find/, function (this: Query<any, any>) {
   this.populate({
     path: "user",
-    select: "name photo",
+    select: "name",
   });
 });
 
@@ -86,10 +86,10 @@ reviewSchema.post("save", function (this: any) {
   this.constructor.calcAverageRatings(this.product);
 });
 
-reviewSchema.post("findOneAndDelete", async function (doc) {
+reviewSchema.post("findOneAndDelete", async function (doc: any) {
   if (doc) {
-    // Usiamo l'ID prodotto della recensione appena cancellata per ricalcolare la media
-    await (doc.constructor as any).calcAverageRatings(doc.product);
+    // Si utilizza l'ID prodotto della recensione appena cancellata per ricalcolare la media
+    await doc.constructor.calcAverageRatings(doc.product);
   }
 });
 

@@ -12,6 +12,7 @@ import reviewRoutes from "./reviewRoutes.js";
 const router = express.Router();
 
 router.get("/", getAllProducts);
+router.get("/:id", getProductById);
 router.post(
   "/",
   authenticateToken,
@@ -20,7 +21,7 @@ router.post(
   resizeProductImage,
   addProduct,
 );
-router.get("/:id", authenticateToken, getProductById);
+
 router.delete("/:id", authenticateToken, restrictTo("admin"), deleteProduct);
 router.patch(
   "/:id",
@@ -30,5 +31,5 @@ router.patch(
   resizeProductImage,
   updateProduct,
 );
-router.use("/products/:productId/reviews", reviewRoutes);
+router.use("/:productId/reviews", reviewRoutes);
 export default router;

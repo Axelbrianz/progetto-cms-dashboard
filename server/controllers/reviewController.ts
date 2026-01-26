@@ -6,6 +6,7 @@ import { AppError } from "../utils/AppError.js";
 export const getAllReviews = catchAsync(async (req: Request, res: Response) => {
   let filter: any = {};
   if (req.params.productId) filter.product = req.params.productId;
+  if (req.query.userId) filter.user = req.query.userId;
   if (req.query.rating) filter.rating = req.query.rating;
 
   const page = Number(req.query.page) || 1;

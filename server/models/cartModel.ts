@@ -1,8 +1,15 @@
 import mongoose, { Document, Schema } from "mongoose";
+import type { IProduct } from "./productsModel.js";
 
 //interfaccia per il singolo oggetto nell'array
 interface ICartItem {
   product: mongoose.Types.ObjectId;
+  quantity: number;
+}
+
+// Interfaccia per cart item popolato
+interface IPopulatedCartItem {
+  product: IProduct;
   quantity: number;
 }
 
@@ -12,6 +19,11 @@ interface ICart extends Document {
   items: ICartItem[];
   totalPrice: number;
   calculateTotalPrice(): number;
+}
+
+// Interfaccia per carrello con prodotti popolati
+export interface IPopulatedCart extends Omit<ICart, "items"> {
+  items: IPopulatedCartItem[];
 }
 
 const cartSchema = new Schema<ICart>(

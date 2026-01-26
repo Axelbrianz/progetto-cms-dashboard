@@ -1,6 +1,22 @@
-import mongoose from "mongoose";
+import mongoose, { Document } from "mongoose";
 
-const productsSchema = new mongoose.Schema(
+// Interfaccia per il documento Product
+export interface IProduct extends Document {
+  _id: mongoose.Types.ObjectId;
+  name: string;
+  description: string;
+  price: number;
+  category: string;
+  inStock: boolean;
+  howManyAvailable: number;
+  image: string;
+  ratingsAverage: number;
+  ratingsQuantity: number;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+const productsSchema = new mongoose.Schema<IProduct>(
   {
     name: {
       type: String,
@@ -25,7 +41,7 @@ const productsSchema = new mongoose.Schema(
       type: Boolean,
       default: true,
     },
-    howManyAvaible: {
+    howManyAvailable: {
       type: Number,
       required: [true, "Il numero di prodotti disponibili è obbligatorio"],
       min: 0,
@@ -48,7 +64,7 @@ const productsSchema = new mongoose.Schema(
     timestamps: true,
     toJSON: { virtuals: true },
     toObject: { virtuals: true },
-  }
+  },
 );
 
 productsSchema.virtual("reviews", {
@@ -57,6 +73,6 @@ productsSchema.virtual("reviews", {
   localField: "_id",
 });
 
-const ProductModel = mongoose.model("Product", productsSchema);
+const ProductModel = mongoose.model<IProduct>("Product", productsSchema);
 
 export default ProductModel;

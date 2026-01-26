@@ -5,9 +5,12 @@ import productRoutes from "./routes/productRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
 import cartRoutes from "./routes/cartRoutes.js";
+import orderRoutes from "./routes/orderRoutes.js";
+import reviewRoutes from "./routes/reviewRoutes.js";
 import { AppError } from "./utils/AppError.js";
 import type { Request, Response, NextFunction } from "express";
 import { errorHandler } from "./middleware/errMiddleware.js";
+import { authenticateToken, restrictTo } from "./middleware/authMiddleware.js";
 import mongoose from "mongoose";
 
 const app = express();
@@ -35,6 +38,9 @@ app.use("/api/products", productRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/cart", cartRoutes);
+app.use("/api/orders", orderRoutes);
+// Solo admin può vedere TUTTE le reviews
+app.use("/api/reviews", authenticateToken, restrictTo("admin"), reviewRoutes);
 
 app.use((req: Request, res: Response, next: NextFunction) => {
   next(

@@ -8,8 +8,15 @@ import fs from "fs";
 export const getAllProducts = catchAsync(
   async (req: Request, res: Response) => {
     const queryObject = { ...req.query };
-    const excludedFields = ["page", "sort", "limit", "fields"];
+    const excludedFields = ["page", "sort", "limit", "fields", "search"];
     excludedFields.forEach((el) => delete queryObject[el]);
+
+    // 🔍 Ricerca testuale per barra di ricerca (solo nel nome)
+    if (req.query.search) {
+      // Creazione di un espressione regolare per la ricerca testuale (case-insensitive)
+      const searchRegex = new RegExp(req.query.search as string, "i");
+      queryObject.name = searchRegex as any;
+    }
 
     let queryStr = JSON.stringify(queryObject);
     queryStr = queryStr.replace(/\b(gte|gt|lte|lt)\b/g, (match) => `$${match}`);
@@ -43,7 +50,7 @@ export const getAllProducts = catchAsync(
       results: products.length,
       data: { products },
     });
-  }
+  },
 );
 
 export const addProduct = catchAsync(
@@ -54,7 +61,7 @@ export const addProduct = catchAsync(
 
     const newProduct = await ProductModel.create(req.body);
     res.status(201).json(newProduct);
-  }
+  },
 );
 
 export const getProductById = catchAsync(
@@ -76,7 +83,7 @@ export const getProductById = catchAsync(
     }
 
     res.json(product);
-  }
+  },
 );
 
 export const deleteProduct = catchAsync(
@@ -98,19 +105,19 @@ export const deleteProduct = catchAsync(
         if (err) {
           console.error(
             "Errore durante la cancellazione dell'immagine del prodotto:",
-            err
+            err,
           );
         } else {
           console.log(
             "Immagine del prodotto cancellata con successo:",
-            imagePath
+            imagePath,
           );
         }
       });
     }
 
     res.status(200).json({ message: `${deletedProduct.name} eliminato` });
-  }
+  },
 );
 
 export const updateProduct = catchAsync(
@@ -128,12 +135,12 @@ export const updateProduct = catchAsync(
           if (err) {
             console.error(
               "Errore durante la cancellazione della vecchia immagine del prodotto:",
-              err
+              err,
             );
           } else {
             console.log(
               "Vecchia immagine del prodotto cancellata con successo:",
-              oldImagePath
+              oldImagePath,
             );
           }
         });
@@ -151,5 +158,5 @@ export const updateProduct = catchAsync(
     }
 
     res.json(updatedProduct);
-  }
+  },
 );
