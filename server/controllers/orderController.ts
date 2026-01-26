@@ -18,9 +18,7 @@ export const createOrder = catchAsync(
     }
 
     const { shippingAddress }: { shippingAddress: IShippingAddress } = req.body;
-    if (!shippingAddress) {
-      return next(new AppError("Inserisci un indirizzo di spedizione", 400));
-    }
+
     const orderItems: IOrderItem[] = cart.items.map((item) => ({
       product: item.product._id,
       name: item.product.name,

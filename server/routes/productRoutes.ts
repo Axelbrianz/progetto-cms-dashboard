@@ -8,6 +8,11 @@ import { authenticateToken } from "../middleware/authMiddleware.js";
 import { restrictTo } from "../middleware/authMiddleware.js";
 import { upload } from "../middleware/uploadMiddleware.js";
 import { resizeProductImage } from "../middleware/uploadMiddleware.js";
+import { validateMiddleware } from "../middleware/validateMiddleware.js";
+import {
+  productSchema,
+  updateProductSchema,
+} from "../schemas/productSchema.js";
 import reviewRoutes from "./reviewRoutes.js";
 const router = express.Router();
 
@@ -19,6 +24,7 @@ router.post(
   restrictTo("admin"),
   upload.single("image"),
   resizeProductImage,
+  validateMiddleware(productSchema),
   addProduct,
 );
 
@@ -29,6 +35,7 @@ router.patch(
   restrictTo("admin"),
   upload.single("image"),
   resizeProductImage,
+  validateMiddleware(updateProductSchema),
   updateProduct,
 );
 router.use("/:productId/reviews", reviewRoutes);

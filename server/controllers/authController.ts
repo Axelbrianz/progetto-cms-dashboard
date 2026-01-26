@@ -13,9 +13,6 @@ if (!SECRET_KEY) {
 export const login = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     const { email, password } = req.body;
-    if (!email || !password) {
-      return next(new AppError("Email e password sono obbligatorie", 400));
-    }
     const user = await UserModel.findOne({ email }).select("+password");
 
     if (!user) {
@@ -30,7 +27,7 @@ export const login = catchAsync(
     const token = jwt.sign(
       { id: user._id, email: user.email, role: user.role },
       SECRET_KEY,
-      { expiresIn: "1h" }
+      { expiresIn: "1h" },
     );
 
     res.status(200).json({
@@ -38,7 +35,7 @@ export const login = catchAsync(
       token,
       data: { user },
     });
-  }
+  },
 );
 
 export const register = catchAsync(
@@ -59,7 +56,7 @@ export const register = catchAsync(
     const token = jwt.sign(
       { id: newUser._id, email: newUser.email, role: newUser.role },
       SECRET_KEY,
-      { expiresIn: "1h" }
+      { expiresIn: "1h" },
     );
 
     res.status(201).json({
@@ -67,5 +64,5 @@ export const register = catchAsync(
       token,
       data: { user: newUser },
     });
-  }
+  },
 );

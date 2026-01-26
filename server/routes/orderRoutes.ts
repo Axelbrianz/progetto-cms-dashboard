@@ -1,4 +1,6 @@
 import express from "express";
+import { validateMiddleware } from "../middleware/validateMiddleware.js";
+import { createOrderSchema } from "../schemas/orderSchema.js";
 import {
   createOrder,
   getAllOrders,
@@ -13,7 +15,7 @@ const router = express.Router();
 router.use(authenticateToken);
 
 // Routes per tutti gli utenti autenticati
-router.post("/", createOrder); // Crea un ordine dal carrello
+router.post("/", validateMiddleware(createOrderSchema), createOrder); // Crea un ordine dal carrello
 router.get("/", getAllOrders); // Ottieni ordini (admin: tutti, user: propri)
 router.get("/:id", getOrder); // Ottieni un ordine specifico (verifica ownership nel controller)
 
