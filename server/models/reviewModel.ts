@@ -52,36 +52,52 @@ reviewSchema.pre(/^find/, function (this: Query<any, any>) {
   });
 });
 
-//Calcolo media delle recensioni
+//Calcolo automatico media recensioni prodotto
 
+/**
+ * Static method per calcolare statistiche recensioni di un prodotto
+ *
+ * Utilizza MongoDB aggregation pipeline per calcolare:
+ * - Numero totale recensioni (nRating)
+ * - Media rating (avgRating)
+ *
+ * Aggiorna automaticamente il ProductModel con i risultati.
+ * Chiamato dai middleware post-save e post-delete.
+ */
 reviewSchema.statics.calcAverageRatings = async function (
   productId: mongoose.Types.ObjectId,
 ) {
   const stats = await this.aggregate([
     {
+      // Filtra solo le recensioni di questo prodotto
       $match: { product: productId },
     },
     {
+      // Raggruppa per product e calcola statistiche
       $group: {
         _id: "$product",
-        nRating: { $sum: 1 },
-        avgRating: { $avg: "$rating" },
+        nRating: { $sum: 1 }, // Conta recensioni
+        avgRating: { $avg: "$rating" }, // Media rating
       },
     },
   ]);
 
   if (stats.length > 0) {
+    // Aggiorna il prodotto con le nuove statistiche
     await ProductModel.findByIdAndUpdate(productId, {
       ratingsQuantity: stats[0].nRating,
       ratingsAverage: stats[0].avgRating,
     });
   } else {
+    // Nessuna recensione: reset a valori default
     await ProductModel.findByIdAndUpdate(productId, {
       ratingsQuantity: 0,
       ratingsAverage: 4.5,
     });
   }
 };
+// Middleware post-save: dopo aver salvato una recensione, ricalcola automaticamente
+// le statistiche del prodotto (ratingsAverage e ratingsQuantity)
 reviewSchema.post("save", function (this: any) {
   this.constructor.calcAverageRatings(this.product);
 });

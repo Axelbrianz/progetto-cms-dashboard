@@ -27,7 +27,7 @@ export const getAllReviews = catchAsync(async (req: Request, res: Response) => {
 
 export const createReview = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
-    if (!req.body.product) req.body.product = req.params.productId;
+    req.body.product = req.params.productId;
     req.body.user = (req as any).user.id;
 
     const newReview = await ReviewModel.create(req.body);

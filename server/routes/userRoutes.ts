@@ -8,6 +8,8 @@ import {
   updatePassword,
 } from "../controllers/userController.js";
 import { authenticateToken, restrictTo } from "../middleware/authMiddleware.js";
+import { validateMiddleware } from "../middleware/validateMiddleware.js";
+import { updatePasswordSchema } from "../schemas/authSchema.js";
 
 const router = express.Router();
 
@@ -17,7 +19,11 @@ router.use(authenticateToken);
 // Rotte per l'utente loggato
 router.get("/me", getMe, getUser);
 router.patch("/updateMe", updateMe);
-router.patch("/updateMyPassword", updatePassword);
+router.patch(
+  "/updateMyPassword",
+  validateMiddleware(updatePasswordSchema),
+  updatePassword,
+);
 router.delete("/deleteMe", deleteMe);
 
 // Rotte protette: solo l'Admin può vedere la lista utenti

@@ -68,10 +68,6 @@ export const getProductById = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     const { id } = req.params;
 
-    if (!id) {
-      return next(new AppError("ID mancante", 400));
-    }
-
     const product = await ProductModel.findById(id).populate({
       path: "reviews",
       options: { sort: { createdAt: -1 }, limit: 5 },

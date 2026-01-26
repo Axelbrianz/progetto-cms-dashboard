@@ -33,6 +33,10 @@ export const addToCart = catchAsync(
       return next(new AppError("Prodotto non trovato", 404));
     }
 
+    if (!product.inStock || product.howManyAvailable < quantity) {
+      return next(new AppError("Prodotto non disponibile", 400));
+    }
+
     let cart = await CartModel.findOne({ user: userId });
 
     if (!cart) {
@@ -104,10 +108,14 @@ export const clearCart = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     const userId = (req as any).user.id;
 
-    const cart = await CartModel.findOneAndDelete({ user: userId });
+    const cart = await CartModel.findOne({ user: userId });
     if (!cart) {
       return next(new AppError("Carrello non trovato", 404));
     }
+    cart.items = [];
+    cart.totalPrice = 0;
+    await cart.save();
+
     res.status(200).json({
       status: "success",
       message: "Carrello svuotato con successo",
